@@ -1,0 +1,10 @@
+dist/
+__pycache__/
+.vscode/
+build/
+venv/
+*.ico
+*.spec
+*.xlsx
+*.exe
+*.ini
