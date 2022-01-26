@@ -188,6 +188,7 @@ class UpcomingDrops:
 
             cell = ws.cell(row=row, column=col, value=drop["time_est"])
             cell.alignment = Alignment(horizontal="center")
+            cell.font = self._FONT_BODY
             col += 1
 
             cell = ws.cell(row=row, column=col, value=drop["time_utc"])
@@ -233,6 +234,7 @@ class UpcomingDrops:
 
             cell = ws.cell(row=row, column=col, value=drop["supply"])
             cell.alignment = Alignment(horizontal="center")
+            cell.font = self._FONT_BODY
             col += 1
 
             cell = ws.cell(row=row, column=col, value=drop["mint_price"])
