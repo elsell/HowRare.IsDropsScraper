@@ -7,7 +7,7 @@ from openpyxl.utils import get_column_letter
 import os
 
 
-class UpcomingMints:
+class UpcomingDrops:
     _STYLE_YELLOW_FILL = PatternFill(start_color="F1C232", fill_type="solid")
     _STYLE_BLUE_FILL = PatternFill(start_color="1c4587", fill_type="solid")
 
@@ -18,12 +18,12 @@ class UpcomingMints:
     _FONT_BODY = Font(name="Arial", size=10)
 
     def __init__(self, filename, warning_title, warning_subtitle, add_sheets_for_days):
-        self._mints = HowRareIs()
+        self._drops = HowRareIs()
         self._filename = filename
 
         self._add_sheets_for_days = add_sheets_for_days
 
-        self._mints_written = 0
+        self._drops_written = 0
 
         self._warning_title = warning_title
         self._warning_subtitle = warning_subtitle
@@ -33,7 +33,7 @@ class UpcomingMints:
         self._log_init()
 
     def _log_init(self):
-        self._log.info("Initializing Upcoming Mints")
+        self._log.info("Initializing HowRare.IsDropsScraper")
         self._log.info("%s%s %s", " " * 4, "Filename".ljust(30, "."), self._filename)
         self._log.info(
             "%s%s %s", " " * 4, "Warning Title".ljust(30, "."), self._warning_title
@@ -80,7 +80,7 @@ class UpcomingMints:
 
     @property
     def _row_start_data(self):
-        return 5 + self._mints_written
+        return 5 + self._drops_written
 
     def _draw_headings(self, worksheet):
         ws = worksheet
@@ -240,19 +240,19 @@ class UpcomingMints:
             cell.alignment = Alignment(horizontal="center")
             col += 1
 
-            self._mints_written += 1
+            self._drops_written += 1
 
     def create_excel(self, how_many_days):
-        mints_workbook = openpyxl.Workbook()
+        drops_workbook = openpyxl.Workbook()
         ws = None
 
         # Remove default sheet
-        mints_workbook.remove(mints_workbook.active)
+        drops_workbook.remove(drops_workbook.active)
         DEFAULT_FONT.name = "Arial"
 
         if not self._add_sheets_for_days:
             # Create nice named sheet
-            ws = mints_workbook.create_sheet("Upcoming Mints")
+            ws = drops_workbook.create_sheet("Upcoming Drops")
 
             # Create styling
             self._draw_styling(ws)
@@ -261,7 +261,7 @@ class UpcomingMints:
             self._draw_headings(ws)
 
         self._log.info("Acquiring drops...")
-        drops = self._mints.get_drops()
+        drops = self._drops.get_drops()
         self._log.info("Creating Excel document ...")
         self._log.info(
             "Printing %s of %s days.",
@@ -271,8 +271,8 @@ class UpcomingMints:
         for i, drop in enumerate(drops):
             if i < how_many_days:
                 if self._add_sheets_for_days:
-                    self._mints_written = 0
-                    ws = mints_workbook.create_sheet(drop.replace("/", "-"))
+                    self._drops_written = 0
+                    ws = drops_workbook.create_sheet(drop.replace("/", "-"))
                     # Create styling
                     self._draw_styling(ws)
 
@@ -283,13 +283,13 @@ class UpcomingMints:
             # Resize Columns
             self._auto_size_columns(ws, ["J", "E", "F", "G"])
 
-        self._save_workbook(mints_workbook, self._filename)
+        self._save_workbook(drops_workbook, self._filename)
         self._log.info("Drops saved to %s.", self._filename)
 
 
 def get_default_config():
     return {
-        "file_info": {"filename": "UpcomingMints.xlsx"},
+        "file_info": {"filename": "UpcomingDrops.xlsx"},
         "appearance": {
             "warning_title": "This is not financial Advice. Do your own research.",
             "warning_subtitle": "Having a project listed on this sheet is not an endorsement of that project.",
@@ -349,7 +349,7 @@ def get_config(filename) -> ConfigParser:
 if __name__ == "__main__":
     try:
 
-        default_config_filename = "upcoming_mints_config.ini"
+        default_config_filename = "upcoming_drops_config.ini"
 
         filename = default_config_filename
 
@@ -368,7 +368,7 @@ if __name__ == "__main__":
             "functionality", "additional_days_add_sheets"
         )
 
-        um = UpcomingMints(
+        um = UpcomingDrops(
             filename, warning_title, warning_subtitle, add_sheets_for_days
         )
 
