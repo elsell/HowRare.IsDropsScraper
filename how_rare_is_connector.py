@@ -8,10 +8,22 @@ import pytz
 class HowRareIs:
     _URL = "https://howrare.is/drops"
 
-    def __init__(self):
+    def __init__(self, html_filename=None):
         self._log = logging.getLogger(__name__)
+        self._html_filename = html_filename
+
+    def _get_page_html_from_file(self, filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                return f.read()
+
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Please save an HTML file to: {filename}")
 
     def _get_page_html(self):
+        if self._using_local_file:
+            return self._get_page_html_from_file(self._html_filename)
+
         r = requests.get(self._URL)
         self._log.info("Downloading drops...")
         self._log.debug("Retreiving content from: %s", self._URL)
@@ -213,8 +225,16 @@ class HowRareIs:
                 drops[date].append(drop_info)
                 drop_count += 1
 
-        self._log.info("Found %s drops.", drop_count)
+        self._log.info(
+            "Found %s drops%s.",
+            drop_count,
+            " [!! LOCALLY !!]" if self._using_local_file else "",
+        )
         return drops
+
+    @property
+    def _using_local_file(self):
+        return self._html_filename != None
 
 
 if __name__ == "__main__":

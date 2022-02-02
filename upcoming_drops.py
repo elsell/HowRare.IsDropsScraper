@@ -17,9 +17,17 @@ class UpcomingDrops:
     _FONT_DATE = Font(name="Arial", size=18, bold=True)
     _FONT_BODY = Font(name="Arial", size=10)
 
-    def __init__(self, filename, warning_title, warning_subtitle, add_sheets_for_days):
-        self._drops = HowRareIs()
+    def __init__(
+        self,
+        filename,
+        warning_title,
+        warning_subtitle,
+        add_sheets_for_days,
+        html_file_name=None,
+    ):
         self._filename = filename
+        self._html_file_name = html_file_name
+        self._drops = HowRareIs(self._html_file_name)
 
         self._add_sheets_for_days = add_sheets_for_days
 
@@ -35,6 +43,17 @@ class UpcomingDrops:
     def _log_init(self):
         self._log.info("Initializing HowRare.IsDropsScraper")
         self._log.info("%s%s %s", " " * 4, "Filename".ljust(30, "."), self._filename)
+        self._log.info(
+            "%s%s %s",
+            " " * 4,
+            "Read from HTML".ljust(30, "."),
+            self._html_file_name != None,
+        )
+        if self._html_file_name != None:
+            self._log.info(
+                "%s%s %s", " " * 4, "HTML Filename".ljust(30, "."), self._html_file_name
+            )
+
         self._log.info(
             "%s%s %s", " " * 4, "Warning Title".ljust(30, "."), self._warning_title
         )
@@ -297,6 +316,10 @@ def get_default_config():
             "warning_subtitle": "Having a project listed on this sheet is not an endorsement of that project.",
         },
         "functionality": {"days_to_export": "1", "additional_days_add_sheets": "False"},
+        "bot_prevention_workaround": {
+            "use_html_file_instead_of_url": "False",
+            "html_file_name": "upcoming_mints.html",
+        },
         "debug": {"log_level": "info"},
     }
 
@@ -370,8 +393,21 @@ if __name__ == "__main__":
             "functionality", "additional_days_add_sheets"
         )
 
+        use_html_file = config.getboolean(
+            "bot_prevention_workaround", "use_html_file_instead_of_url"
+        )
+        html_file_name = (
+            config.get("bot_prevention_workaround", "html_file_name")
+            if use_html_file
+            else None
+        )
+
         um = UpcomingDrops(
-            filename, warning_title, warning_subtitle, add_sheets_for_days
+            filename,
+            warning_title,
+            warning_subtitle,
+            add_sheets_for_days,
+            html_file_name,
         )
 
         um.create_excel(days)
